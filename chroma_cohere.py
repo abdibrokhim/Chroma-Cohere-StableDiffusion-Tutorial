@@ -15,10 +15,8 @@ def generate_prompt(query, file_path):
     loader = PyMuPDFLoader(file_path)
     documents = loader.load()
 
-
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
     texts = text_splitter.split_documents(documents)
-
 
     embeddings = CohereEmbeddings(cohere_api_key=os.environ["COHERE_API_KEY"])
     vectordb = Chroma.from_documents(texts, embeddings)
