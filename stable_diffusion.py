@@ -18,7 +18,7 @@ os.environ['STABILITY_HOST'] = 'grpc.stability.ai:443'
 
 # Paste your API Key below.
 
-os.environ['STABILITY_KEY'] = 'api_key'
+os.environ['STABILITY_KEY'] = ''
 
 
 def imagine(prompt):

@@ -9,7 +9,7 @@ import streamlit as st
 import stable_diffusion, chroma_cohere
 
 
-def generate_prompt():
+def generate_prompt(query):
 
     if st.session_state.n_requests >= 5:
         st.session_state.text_error = "Too many requests. Please wait a few seconds before completing another Text."
@@ -23,7 +23,7 @@ def generate_prompt():
 
     with text_spinner_placeholder:
         with st.spinner("Please wait while we process your query..."):
-            prompt = chroma_cohere.generate_prompt(query=st.session_state.prompt_generate, file_path=st.session_state.file_path)
+            prompt = chroma_cohere.generate_prompt(query=query, file_path=st.session_state.file_path)
 
             if prompt == "":
                 st.session_state.text_error = "Your request activated the API's safety filters and could not be processed. Please modify the prompt and try again."
@@ -35,7 +35,7 @@ def generate_prompt():
 
 
 
-def imagine():
+def imagine(im_query):
 
     if st.session_state.n_requests >= 5:
         st.session_state.text_error = "Too many requests. Please wait a few seconds before completing another Text."
@@ -49,7 +49,7 @@ def imagine():
 
     with text_spinner_placeholder:
         with st.spinner("Please wait while we generate your image..."):
-            img_path = stable_diffusion.imagine(prompt=st.session_state.imagine)
+            img_path = stable_diffusion.imagine(prompt=im_query)
 
             if img_path == "":
                 st.session_state.text_error = "Your request activated the API's safety filters and could not be processed. Please modify the prompt and try again."
@@ -137,7 +137,9 @@ if file is not None:
 
 
 # textarea
-prompt = st.text_area(label="Query the document", placeholder="Harry Potter as Balenciaga runway model", height=100)
+query = st.text_area(
+    label="Query the document",
+    placeholder="Harry Potter as Balenciaga runway model", height=100)
 
 
 # button
@@ -147,11 +149,12 @@ st.button(
     key="generate_prompt",
     type="primary",
     on_click=generate_prompt,
+    args=(query,),
     )
 
 
 # textarea
-prompt = st.text_area(label="Image description", placeholder="Harry Potter as Balenciaga runway model", height=100)
+im_query = st.text_area(label="Image description", placeholder="Harry Potter as Balenciaga runway model", height=100)
 
 
 # button
@@ -161,6 +164,7 @@ st.button(
     key="generate_image",
     type="primary",
     on_click=imagine,
+    args=(im_query,),
     )
 
 

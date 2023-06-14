@@ -7,7 +7,7 @@ from langchain.chains import VectorDBQA
 from langchain.document_loaders import PyMuPDFLoader
 
 
-os.environ["COHERE_API_KEY"] = "api_key"
+os.environ["COHERE_API_KEY"] = ""
 
 
 def generate_prompt(query, file_path):
