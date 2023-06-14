@@ -1,0 +1,6 @@
+streamlit
+chromadb
+langchain
+pymupdf
+cohere
+stability-sdk
