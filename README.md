@@ -1,1 +1,1 @@
-Try it out: 
+Try it out: https://abdibrokhim-chroma-cohere-stablediffusion-tutorial-app-y3hn0s.streamlit.app/
