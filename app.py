@@ -9,55 +9,67 @@ import streamlit as st
 import stable_diffusion, chroma_cohere
 
 
-def generate_prompt(query):
+def generate_prompt():
 
-    if st.session_state.n_requests >= 5:
-        st.session_state.text_error = "Too many requests. Please wait a few seconds before completing another Text."
-        logging.info(f"Session request limit reached: {st.session_state.n_requests}")
-        st.session_state.n_requests = 1
+    st.session_state.text_error = ""
+
+    if st.session_state.cohere_api_key == "":
+        st.session_state.text_error = "Missed API key."
         return
-    
+
+
+    st.session_state.text_error = ""
+
+    if st.session_state.file_path == "" or st.session_state.query == "":
+        st.session_state.text_error = "Missed a file or query."
+        return
+
 
     st.session_state.prompt_generate = ""
     st.session_state.text_error = ""
 
     with text_spinner_placeholder:
         with st.spinner("Please wait while we process your query..."):
-            prompt = chroma_cohere.generate_prompt(query=query, file_path=st.session_state.file_path)
+            prompt = chroma_cohere.generate_prompt(query=st.session_state.query, file_path=st.session_state.file_path, cohere_api_key=st.session_state.cohere_api_key)
 
             if prompt == "":
                 st.session_state.text_error = "Your request activated the API's safety filters and could not be processed. Please modify the prompt and try again."
                 logging.info(f"Text Error: {st.session_state.text_error}")
                 return
             
-            st.session_state.n_requests += 1
             st.session_state.prompt_generate = (prompt)
 
 
 
-def imagine(im_query):
+def imagine():
 
-    if st.session_state.n_requests >= 5:
-        st.session_state.text_error = "Too many requests. Please wait a few seconds before completing another Text."
-        logging.info(f"Session request limit reached: {st.session_state.n_requests}")
-        st.session_state.n_requests = 1
+    st.session_state.text_error = ""
+
+    if st.session_state.stable_diffusion_api_key == "":
+        st.session_state.text_error = "Missed API key."
         return
-    
+
+
+    st.session_state.text_error = ""
+
+    if st.session_state.im_query == "":
+        st.session_state.text_error = "Missed a query."
+        return
+
     st.session_state.imagine = ""
     st.session_state.img_path = ""
     st.session_state.text_error = ""
 
     with text_spinner_placeholder:
         with st.spinner("Please wait while we generate your image..."):
-            img_path = stable_diffusion.imagine(prompt=im_query)
+            im_path = stable_diffusion.imagine(prompt=st.session_state.im_query, stable_diffusion_api_key=st.session_state.stable_diffusion_api_key)
 
-            if img_path == "":
+            if im_path == "":
                 st.session_state.text_error = "Your request activated the API's safety filters and could not be processed. Please modify the prompt and try again."
                 logging.info(f"Text Error: {st.session_state.text_error}")
                 return
             
-            st.session_state.n_requests += 1
-            st.session_state.img_path = (img_path)
+            st.session_state.img_path = (im_path)
 
 
 
@@ -78,6 +90,12 @@ if "imagine" not in st.session_state:
 if "img_path" not in st.session_state:
     st.session_state.img_path = ""
 
+if "query" not in st.session_state:
+    st.session_state.query = ""
+
+if "im_query" not in st.session_state:
+    st.session_state.im_query = ""
+
 if "prompt_generate" not in st.session_state:
     st.session_state.prompt_generate = ""
 
@@ -87,8 +105,11 @@ if "file_path" not in st.session_state:
 if "text_error" not in st.session_state:
     st.session_state.text_error = ""
 
-if "n_requests" not in st.session_state:
-    st.session_state.n_requests = 0
+if "cohere_api_key" not in st.session_state:
+    st.session_state.cohere_api_key = ""
+
+if "stable_diffusion_api_key" not in st.session_state:
+    st.session_state.stable_diffusion_api_key = ""
 
 if "visibility" not in st.session_state:
     st.session_state.visibility = "visible"
@@ -112,6 +133,9 @@ st.write(
 
 
 # Render Streamlit page
+with st.sidebar:
+    st.session_state.cohere_api_key = st.text_input('Cohere API Key', )
+    st.session_state.stable_diffusion_api_key = st.text_input('Stable Diffusion API Key', )
 
 
 # title of the app
@@ -121,10 +145,6 @@ st.title("Chroma + Cohere + Stable Diffusion Tutorial")
 st.markdown(
     "This is a demo of the Chroma + Cohere + Stable Diffusion model."
 )
-
-
-# header
-st.header("Chroma + Cohere + Stable Diffusion Tutorial")
 
 
 # file upload
@@ -137,7 +157,7 @@ if file is not None:
 
 
 # textarea
-query = st.text_area(
+st.session_state.query = st.text_area(
     label="Query the document",
     placeholder="Harry Potter as Balenciaga runway model", height=100)
 
@@ -149,12 +169,11 @@ st.button(
     key="generate_prompt",
     type="primary",
     on_click=generate_prompt,
-    args=(query,),
     )
 
 
 # textarea
-im_query = st.text_area(label="Image description", placeholder="Harry Potter as Balenciaga runway model", height=100)
+st.session_state.im_query = st.text_area(label="Image description", placeholder="Harry Potter as Balenciaga runway model", height=100)
 
 
 # button
@@ -164,7 +183,6 @@ st.button(
     key="generate_image",
     type="primary",
     on_click=imagine,
-    args=(im_query,),
     )
 
 
